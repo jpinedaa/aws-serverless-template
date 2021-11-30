@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  DatalogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: datalog.lambda_handler
+      Runtime: python3.9
+      CodeUri: s3://class-serverlessbucket-1rfh9m5fk4hw7/2a7e4028269afd55e221448feb64ae50
+      MemorySize: 256
+      Timeout: 15
+      Policies: AWSLambdaKinesisExecutionRole
+      Events:
+        EventSource:
+          Properties:
+            Stream:
+              Fn::GetAtt:
+              - DataStream
+              - Arn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 25
+          Type: Kinesis
+  DataStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: datastream
+      ShardCount: 1
+      Tags:
+      - Key: Project
+        Value: SEIS665
